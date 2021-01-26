@@ -1,0 +1,5 @@
+menu "Example configuration"
+    config EXAMPLE
+        int "Number of something"
+        default 1
+endmenu
