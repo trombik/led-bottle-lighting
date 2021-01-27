@@ -7,16 +7,17 @@
 
 #include "bottle_led.h"
 
-#define TAG "main"
-#define GPIO_TOUCH  5
+#define GPIO_TOUCH  CONFIG_PROJECT_GPIO_TOUCH
+#define GPIO_LED  CONFIG_PROJECT_GPIO_LED
 #define ESP_INTR_FLAG_DEFAULT   0
 
-static xQueueHandle gpio_evt_queue = NULL;
+static xQueueHandle queue_gpio_event = NULL;
+static char tag[] = "main";
 
 static void IRAM_ATTR gpio_isr_handler(void* arg)
 {
     uint32_t gpio_num = (uint32_t)arg;
-    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
+    xQueueSendFromISR(queue_gpio_event, &gpio_num, NULL);
 }
 
 static esp_err_t io_init()
@@ -31,23 +32,23 @@ static esp_err_t io_init()
 
     err = gpio_config(&io_config);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "gpio_config(): %s", esp_err_to_name(err));
+        ESP_LOGE(tag, "gpio_config(): %s", esp_err_to_name(err));
         goto fail;
     }
-    gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
-    if (gpio_evt_queue == NULL) {
+    queue_gpio_event = xQueueCreate(10, sizeof(uint32_t));
+    if (queue_gpio_event == NULL) {
         err = ESP_FAIL;
-        ESP_LOGE(TAG, "xQueueCreate()");
+        ESP_LOGE(tag, "xQueueCreate()");
         goto fail;
     }
     err = gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "gpio_install_isr_service(): %s", esp_err_to_name(err));
+        ESP_LOGE(tag, "gpio_install_isr_service(): %s", esp_err_to_name(err));
         goto fail;
     }
     err = gpio_isr_handler_add(GPIO_TOUCH, gpio_isr_handler, (void*) GPIO_TOUCH);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "gpio_isr_handler_add(): %s", esp_err_to_name(err));
+        ESP_LOGE(tag, "gpio_isr_handler_add(): %s", esp_err_to_name(err));
         goto fail;
     }
 
@@ -62,20 +63,20 @@ void task_handle_gpio_intr(void* arg)
     uint32_t io_num;
 
     while (1) {
-        if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+        if(xQueueReceive(queue_gpio_event, &io_num, portMAX_DELAY)) {
             switch (io_num) {
             case GPIO_TOUCH:
-                ESP_LOGI(TAG, "touch sensor became HIGH");
+                ESP_LOGI(tag, "touch sensor became HIGH");
                 duty += 25;
                 duty = duty < 25 ? 0 : duty;
-                ESP_LOGI(TAG, "duty: %d", duty);
+                ESP_LOGI(tag, "duty: %d", duty);
                 err = bottle_led_update_duty(duty);
                 if (err != ESP_OK) {
-                    ESP_LOGE(TAG, "bottle_led_update_duty(): %s", esp_err_to_name(err));
+                    ESP_LOGE(tag, "bottle_led_update_duty(): %s", esp_err_to_name(err));
                 }
                 break;
             default:
-                ESP_LOGI(TAG, "unknown GPIO intrrupt: io_num = %d", io_num);
+                ESP_LOGI(tag, "unknown GPIO intrrupt: io_num = %d", io_num);
             }
         }
     }
@@ -85,27 +86,27 @@ void app_main(void)
 {
     esp_err_t err = ESP_FAIL;
 
-    ESP_LOGI(TAG, "io_init()");
+    ESP_LOGI(tag, "io_init()");
     err = io_init();
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "io_init()");
+        ESP_LOGE(tag, "io_init()");
         goto fail;
     }
 
-    ESP_LOGI(TAG, "bottle_led_init()");
+    ESP_LOGI(tag, "bottle_led_init()");
     err = bottle_led_init();
     if (err != ESP_OK) {
         goto fail;
     }
-    ESP_LOGI(TAG, "bottle_led_config()");
-    err = bottle_led_config(4);
+    ESP_LOGI(tag, "bottle_led_config()");
+    err = bottle_led_config(GPIO_LED);
     if (err != ESP_OK) {
         goto fail;
     }
 
     err = bottle_led_update_duty(100);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "bottle_led_update_duty(): %s", esp_err_to_name(err));
+        ESP_LOGE(tag, "bottle_led_update_duty(): %s", esp_err_to_name(err));
         goto fail;
     }
 
@@ -114,5 +115,5 @@ void app_main(void)
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 fail:
-    ESP_LOGE(TAG, "%s", esp_err_to_name(err));
+    ESP_LOGE(tag, "%s", esp_err_to_name(err));
 }

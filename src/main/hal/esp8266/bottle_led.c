@@ -4,14 +4,14 @@
 #include <esp_err.h>
 #include <esp_log.h>
 
-#define TAG "hal/esp8266/bottle_led.c"
-
-#define PWM_FREQ    (5000)
+#define PWM_FREQ    CONFIG_PROJECT_PWM_FREQ_HZ
 #define PWM_T       (1000 * 1000 / PWM_FREQ) // in usec
 #if PWM_T < 20
 #error "PWM_T must me more than 20 usec"
 #endif
 #define PWM_CHANNEL (1)
+
+static char tag[] = "bottle_led";
 
 esp_err_t bottle_led_init()
 {
@@ -24,13 +24,13 @@ esp_err_t bottle_led_config(const gpio_num_t gpio_num)
 
     err = pwm_init(PWM_T, 0, PWM_CHANNEL, &gpio_num);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "pwm_init(): %s", esp_err_to_name(err));
+        ESP_LOGE(tag, "pwm_init(): %s", esp_err_to_name(err));
         goto fail;
     }
 
     err = pwm_start();
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "pwm_start(): %s", esp_err_to_name(err));
+        ESP_LOGE(tag, "pwm_start(): %s", esp_err_to_name(err));
         goto fail;
     }
 fail:
@@ -43,7 +43,7 @@ esp_err_t bottle_led_update_duty(const uint8_t duty)
 
     err = pwm_set_duty(PWM_CHANNEL, duty);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "pwm_set_duty(): %s", esp_err_to_name(err));
+        ESP_LOGE(tag, "pwm_set_duty(): %s", esp_err_to_name(err));
         goto fail;
     }
 fail:

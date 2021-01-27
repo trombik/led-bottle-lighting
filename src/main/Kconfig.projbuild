@@ -1,5 +1,25 @@
-menu "Example configuration"
-    config EXAMPLE
-        int "Number of something"
-        default 1
+menu "Project configuration"
+
+    config PROJECT_GPIO_LED
+        int "GPIO number to control the LED"
+        default 4
+        help
+            GPIO number of output pin to control the LED
+
+    config PROJECT_GPIO_TOUCH
+        int "GPIO number of touch sensor"
+        default 5 if (IDF_TARGET_ESP32 || IDF_TARGET_ESP32S2)
+        default 5 if IDF_TARGET_ESP8266
+        help
+            GPIO number of input pin to change PWM duty cycle
+
+    config PROJECT_PWM_FREQ_HZ
+        int "Frequency of PWM in Hz"
+        default 5000
+        # XXX on ESP8266, this must be less than or equal to 50000.
+        # `pwm_init()` says:
+        # "Do not set the period below 20us."
+        range 1000 50000
+        help
+            PWM frequency to control the LED
 endmenu
