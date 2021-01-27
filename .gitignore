@@ -5,4 +5,5 @@
 *.core
 fp-info-cache
 /src/sdkconfig
+/src/sdkconfig.old
 /src/build
