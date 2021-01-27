@@ -2,4 +2,7 @@
 *.bak
 *.swp
 *.swo
+*.core
 fp-info-cache
+/src/sdkconfig
+/src/build
