@@ -46,6 +46,11 @@ esp_err_t bottle_led_update_duty(const uint8_t duty)
         ESP_LOGE(tag, "pwm_set_duty(): %s", esp_err_to_name(err));
         goto fail;
     }
+    err = pwm_start();
+    if (err != ESP_OK) {
+        ESP_LOGE(tag, "pwm_start(): %s", esp_err_to_name(err));
+        goto fail;
+    }
 fail:
     return err;
 }
