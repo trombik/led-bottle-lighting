@@ -22,4 +22,27 @@ menu "Project configuration"
         range 1000 50000
         help
             PWM frequency to control the LED
+
+    config PROJECT_CONNECT_WIFI
+        bool "Enable WiFi support"
+        default y
+
+    config PROJECT_WIFI_SSID
+        string "SSID"
+        default "myssid"
+        depends on PROJECT_CONNECT_WIFI
+        help
+            WiFi SSID to connect to.
+
+    config PROJECT_WIFI_PASSWORD
+        string "Password"
+        default "password"
+        depends on PROJECT_CONNECT_WIFI
+        help
+            WiFi password
+
+    config PROJECT_CONNECT_IPV6
+        bool "Enable IPv6 support"
+        depends on PROJECT_CONNECT_WIFI
+        default n
 endmenu
