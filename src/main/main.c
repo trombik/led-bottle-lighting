@@ -11,6 +11,10 @@
 #include "wifi_connect.h"
 #endif // CONFIG_PROJECT_CONNECT_WIFI
 
+#if defined(CONFIG_PROJECT_SNTP_ENABLE)
+#include "task_sntp.h"
+#endif // CONFIG_PROJECT_SNTP_ENABLE
+
 #define GPIO_TOUCH  CONFIG_PROJECT_GPIO_TOUCH
 #define GPIO_LED  CONFIG_PROJECT_GPIO_LED
 #define ESP_INTR_FLAG_DEFAULT   0
@@ -116,7 +120,7 @@ void app_main(void)
 
     xTaskCreate(task_handle_gpio_intr, "task_handle_gpio_intr", 2048, NULL, 10, NULL);
 
-#if defined CONFIG_PROJECT_CONNECT_WIFI
+#if defined(CONFIG_PROJECT_CONNECT_WIFI)
     err = wifi_init();
     if (err != ESP_OK) {
         ESP_LOGE(tag, "wifi_init(): %s", esp_err_to_name(err));
@@ -127,6 +131,11 @@ void app_main(void)
         }
     }
 #endif // CONFIG_PROJECT_CONNECT_WIFI
+
+#if defined(CONFIG_PROJECT_SNTP_ENABLE)
+    task_sntp_start();
+#endif // CONFIG_PROJECT_SNTP_ENABLE
+
     while (1) {
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }

@@ -45,4 +45,20 @@ menu "Project configuration"
         bool "Enable IPv6 support"
         depends on PROJECT_CONNECT_WIFI
         default n
+
+    config PROJECT_SNTP_ENABLE
+        bool "Enable SNTP support"
+        depends on PROJECT_CONNECT_WIFI
+        default y
+
+    config PROJECT_SNTP_SERVER_NAME
+        string "hostname of SNTP server"
+        depends on PROJECT_SNTP_ENABLE
+        default "pool.ntp.org"
+    config PROJECT_SNTP_TZ
+        string "string of the local timezone"
+        default "UTC"
+        depends on PROJECT_SNTP_ENABLE
+        help
+            A string of the local timezone, such as `UTC-7`.
 endmenu
