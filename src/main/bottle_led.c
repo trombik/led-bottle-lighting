@@ -4,4 +4,6 @@
 #include "hal/esp32/bottle_led.c"
 #elif defined(CONFIG_IDF_TARGET_ESP8266)
 #include "hal/esp8266/bottle_led.c"
+#else
+#error "The target is not supported"
 #endif
