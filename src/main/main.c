@@ -33,6 +33,18 @@ static void IRAM_ATTR gpio_isr_handler(void* arg)
     xQueueSendFromISR(queue_gpio_event, &gpio_num, NULL);
 }
 
+static uint8_t get_next_duty()
+{
+#define N_DUTY  (6)
+    const uint8_t duties[N_DUTY] = {
+        0, 25, 50, 100, 175, 200
+    };
+    static int index = 0;
+
+    index = index + 1 >= N_DUTY ? 0 : index + 1;
+    return duties[index];
+}
+
 static esp_err_t io_init()
 {
     esp_err_t err = ESP_FAIL;
@@ -73,16 +85,15 @@ void task_handle_gpio_intr(void* arg)
 {
     uint8_t duty = 0;
     uint8_t current_duty = 0;
-    esp_err_t err;
     uint32_t io_num;
+    esp_err_t err;
 
     while (1) {
         if(xQueueReceive(queue_gpio_event, &io_num, portMAX_DELAY)) {
             switch (io_num) {
             case GPIO_TOUCH:
                 ESP_LOGI(tag, "touch sensor became HIGH");
-                duty += 25;
-                duty = duty < 25 ? 0 : duty;
+                duty = get_next_duty();
                 current_duty = bottle_led_get_duty();
                 ESP_LOGI(tag, "duty: %d (cuurent: %d)", duty, current_duty);
                 err = bottle_led_set_duty_and_update(duty);
@@ -100,6 +111,7 @@ void task_handle_gpio_intr(void* arg)
 void app_main(void)
 {
     esp_err_t err = ESP_FAIL;
+    uint8_t duty;
 
     ESP_LOGI(tag, "io_init()");
     err = io_init();
@@ -119,7 +131,8 @@ void app_main(void)
         goto fail;
     }
 
-    err = bottle_led_set_duty_and_update(100);
+    duty = get_next_duty();
+    err = bottle_led_set_duty_and_update(duty);
     if (err != ESP_OK) {
         ESP_LOGE(tag, "bottle_led_set_duty_and_update(): %s", esp_err_to_name(err));
         goto fail;
