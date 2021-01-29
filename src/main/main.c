@@ -35,6 +35,8 @@ static void IRAM_ATTR gpio_isr_handler(void* arg)
 
 static uint8_t get_next_duty()
 {
+    /* intentionally limit the max brightness to 200 to save the lifetime of
+     * the LED, and save power */
 #define N_DUTY  (6)
     const uint8_t duties[N_DUTY] = {
         0, 25, 50, 100, 175, 200
