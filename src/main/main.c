@@ -15,6 +15,11 @@
 #include "task_sntp.h"
 #endif // CONFIG_PROJECT_SNTP_ENABLE
 
+#if defined(CONFIG_PROJECT_CRON_ENABLE)
+#include <cron.h>
+#include "task_cron.h"
+#endif // CONFIG_PROJECT_CRON_ENABLE
+
 #define GPIO_TOUCH  CONFIG_PROJECT_GPIO_TOUCH
 #define GPIO_LED  CONFIG_PROJECT_GPIO_LED
 #define ESP_INTR_FLAG_DEFAULT   0
@@ -136,6 +141,22 @@ void app_main(void)
     task_sntp_start();
 #endif // CONFIG_PROJECT_SNTP_ENABLE
 
+#if defined(CONFIG_PROJECT_CRON_ENABLE)
+    ESP_LOGI(tag, "Initializing cron jobs");
+    err = cron_init();
+    if (err != ESP_OK) {
+        ESP_LOGE(tag, "cron_init(): %s", esp_err_to_name(err));
+        goto fail;
+    }
+    ESP_LOGI(tag, "Starting cron");
+    if (cron_start() != 0) {
+        ESP_LOGE(tag, "cron_start(): failed");
+        err = ESP_FAIL;
+        goto fail;
+    }
+#endif // CONFIG_PROJECT_CRON_ENABLE
+
+    ESP_LOGI(tag, "Finished initialization");
     while (1) {
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }

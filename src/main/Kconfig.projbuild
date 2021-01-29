@@ -55,10 +55,33 @@ menu "Project configuration"
         string "hostname of SNTP server"
         depends on PROJECT_SNTP_ENABLE
         default "pool.ntp.org"
+
     config PROJECT_SNTP_TZ
         string "string of the local timezone"
         default "UTC"
         depends on PROJECT_SNTP_ENABLE
         help
             A string of the local timezone, such as `UTC-7`.
+
+    config PROJECT_CRON_ENABLE
+        bool "Enable cron support"
+        depends on PROJECT_SNTP_ENABLE
+        default y
+        help
+            Enable cron job support
+    config PROJECT_CRON_JOB_TURN_ON
+        string "Time to turn on the LED"
+        default "0,30 * * * * *"
+        depends on PROJECT_CRON_ENABLE
+        help
+            Time and date string in crontab(5) format to turn on the LED.
+            See https://github.com/staticlibs/ccronexpr
+
+    config PROJECT_CRON_JOB_TURN_OFF
+        string "Time to turn off the LED"
+        default "15,45 * * * * *"
+        depends on PROJECT_CRON_ENABLE
+        help
+            Time and date string in crontab(5) format to turn off the LED.
+            See https://github.com/staticlibs/ccronexpr
 endmenu
