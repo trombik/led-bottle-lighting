@@ -72,6 +72,7 @@ fail:
 void task_handle_gpio_intr(void* arg)
 {
     uint8_t duty = 0;
+    uint8_t current_duty = 0;
     esp_err_t err;
     uint32_t io_num;
 
@@ -82,10 +83,11 @@ void task_handle_gpio_intr(void* arg)
                 ESP_LOGI(tag, "touch sensor became HIGH");
                 duty += 25;
                 duty = duty < 25 ? 0 : duty;
-                ESP_LOGI(tag, "duty: %d", duty);
-                err = bottle_led_update_duty(duty);
+                current_duty = bottle_led_get_duty();
+                ESP_LOGI(tag, "duty: %d (cuurent: %d)", duty, current_duty);
+                err = bottle_led_set_duty_and_update(duty);
                 if (err != ESP_OK) {
-                    ESP_LOGE(tag, "bottle_led_update_duty(): %s", esp_err_to_name(err));
+                    ESP_LOGE(tag, "bottle_led_set_duty_and_update(): %s", esp_err_to_name(err));
                 }
                 break;
             default:
@@ -117,9 +119,9 @@ void app_main(void)
         goto fail;
     }
 
-    err = bottle_led_update_duty(100);
+    err = bottle_led_set_duty_and_update(100);
     if (err != ESP_OK) {
-        ESP_LOGE(tag, "bottle_led_update_duty(): %s", esp_err_to_name(err));
+        ESP_LOGE(tag, "bottle_led_set_duty_and_update(): %s", esp_err_to_name(err));
         goto fail;
     }
 

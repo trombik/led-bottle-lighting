@@ -6,10 +6,14 @@
 
 esp_err_t bottle_led_init();
 
-esp_err_t bottle_led_config(gpio_num_t gpio_num);
+esp_err_t bottle_led_config(const gpio_num_t gpio_num);
 
-esp_err_t bottle_led_update_duty(uint8_t duty);
+esp_err_t bottle_led_set_duty_and_update(const uint8_t value);
 
-esp_err_t bottle_led_stop();
+uint8_t bottle_led_get_duty();
+
+esp_err_t bottle_led_resume();
+
+esp_err_t bottle_led_pause();
 
 #endif
