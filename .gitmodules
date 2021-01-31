@@ -1,3 +1,7 @@
 [submodule "src/components/esp_cron"]
 	path = src/components/esp_cron
 	url = https://github.com/arossoinsite/esp_cron.git
+[submodule "src/components/esp-idf-lib"]
+	path = src/components/esp-idf-lib
+	url = https://github.com/trombik/esp-idf-lib.git
+	branch = led_strip_spi

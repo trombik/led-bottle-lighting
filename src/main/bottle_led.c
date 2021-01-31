@@ -14,58 +14,81 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <esp_err.h>
+#include <esp_log.h>
+
 #include "bottle_led.h"
 
-#include <freertos/FreeRTOS.h>
-#include <freertos/semphr.h>
-#include <esp_log.h>
-#include <esp_err.h>
-
-static char tag[] = "bottle_led";
-uint8_t bottle_led_duty = 0;
-xSemaphoreHandle bottle_led_duty_mutex = NULL;
-
-uint8_t bottle_led_get_duty()
-{
-    return bottle_led_duty;
-}
-
-esp_err_t bottle_led_init()
-{
-    esp_err_t err;
-
-    if (bottle_led_duty_mutex == NULL) {
-        bottle_led_duty_mutex = xSemaphoreCreateMutex();
-        if (bottle_led_duty_mutex == NULL) {
-            ESP_LOGE(tag, "xSemaphoreCreateMutex(): failed");
-            err = ESP_FAIL;
-            goto fail;
-        }
-    }
-    err = ESP_OK;
-fail:
-    return err;
-}
-
-#if defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32S2)
-#include "hal/esp32/bottle_led.c"
-#elif defined(CONFIG_IDF_TARGET_ESP8266)
-#include "hal/esp8266/bottle_led.c"
+#if defined(CONFIG_PROJECT_LED_TYPE_SINGLE_COLOR)
+#include "bottle_led_single_color.h"
+#elif defined(CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)
+#include "bottle_led_spi.h"
 #else
-#error "The target is not supported"
+#error "CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI or CONFIG_PROJECT_LED_TYPE_SINGLE_COLOR must be defined"
 #endif
 
-esp_err_t bottle_led_set_duty_and_update(const uint8_t value)
+esp_err_t bottle_led_init(void)
 {
-    esp_err_t err;
+#if defined(CONFIG_PROJECT_LED_TYPE_SINGLE_COLOR)
+    return bottle_led_single_color_init();
+#elif defined(CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)
+    return bottle_led_spi_init();
+#else
+#error "BUG: no fucntion defined in bottle_led_init()"
+#endif
+}
 
-    if (xSemaphoreTake(bottle_led_duty_mutex, portMAX_DELAY) == pdTRUE) {
-        bottle_led_duty = value;
-        err = bottle_led_update_duty(bottle_led_duty);
-        xSemaphoreGive(bottle_led_duty_mutex);
-    } else {
-        ESP_LOGE(tag, "xSemaphoreTake(): timeout");
-        err = ESP_FAIL;
-    }
-    return err;
+esp_err_t bottle_led_config(const gpio_num_t gpio_num)
+{
+#if defined(CONFIG_PROJECT_LED_TYPE_SINGLE_COLOR)
+    return bottle_led_single_color_config(gpio_num);
+#elif defined(CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)
+    return bottle_led_spi_config(gpio_num);
+#else
+#error "BUG: no fucntion defined in bottle_led_config()"
+#endif
+}
+
+esp_err_t bottle_led_start()
+{
+#if defined(CONFIG_PROJECT_LED_TYPE_SINGLE_COLOR)
+    return bottle_led_single_color_start();
+#elif defined(CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)
+    return bottle_led_spi_start();
+#else
+#error "BUG: no fucntion defined in bottle_led_start()"
+#endif
+}
+
+void bottle_led_callback(void)
+{
+#if defined(CONFIG_PROJECT_LED_TYPE_SINGLE_COLOR)
+    bottle_led_callback_single_color();
+#elif defined(CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)
+    bottle_led_callback_spi();
+#else
+#error "BUG: no callback defined in bottle_led_callback()"
+#endif
+}
+
+esp_err_t bottle_led_off(void)
+{
+#if defined(CONFIG_PROJECT_LED_TYPE_SINGLE_COLOR)
+    return bottle_led_single_color_off();
+#elif defined(CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)
+    return bottle_led_spi_off();
+#else
+#error "BUG: no function defined in bottle_led_off()"
+#endif
+}
+
+esp_err_t bottle_led_on(void)
+{
+#if defined(CONFIG_PROJECT_LED_TYPE_SINGLE_COLOR)
+    return bottle_led_single_color_on();
+#elif defined(CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)
+    return bottle_led_spi_on();
+#else
+#error "BUG: no function defined in bottle_led_on()"
+#endif
 }

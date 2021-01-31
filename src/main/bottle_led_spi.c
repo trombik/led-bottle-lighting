@@ -14,22 +14,18 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#if !defined(__BOTTLE_LED__H__)
-#define __BOTTLE_LED__H__
+#include "bottle_led_spi.h"
 
+#include <freertos/FreeRTOS.h>
+#include <esp_log.h>
 #include <esp_err.h>
-#include <driver/gpio.h>
 
-esp_err_t bottle_led_init(void);
+static char tag[] = "bottle_led_spi";
 
-esp_err_t bottle_led_config(const gpio_num_t gpio_num);
-
-esp_err_t bottle_led_start(void);
-
-esp_err_t bottle_led_off(void);
-
-esp_err_t bottle_led_on(void);
-
-void bottle_led_callback(void);
-
-#endif // __BOTTLE_LED__H__
+#if defined(CONFIG_IDF_TARGET_ESP32) || defined(CONFIG_IDF_TARGET_ESP32S2)
+#include "hal/esp32/bottle_led_spi.c"
+#elif defined(CONFIG_IDF_TARGET_ESP8266)
+#include "hal/esp8266/bottle_led_spi.c"
+#else
+#error "The target is not supported"
+#endif

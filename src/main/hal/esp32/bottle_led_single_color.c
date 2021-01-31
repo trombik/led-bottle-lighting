@@ -50,7 +50,7 @@ ledc_channel_config_t ledc_channel = {
     .timer_sel  = LEDC_TIMER_1
 };
 
-esp_err_t bottle_led_config(const gpio_num_t gpio_num)
+esp_err_t bottle_led_single_color_config(const gpio_num_t gpio_num)
 {
     esp_err_t err = ESP_FAIL;
 
@@ -76,7 +76,7 @@ fail:
     return err;
 }
 
-static esp_err_t bottle_led_update_duty(const uint8_t duty)
+static esp_err_t bottle_led_single_color_update_duty(const uint8_t duty)
 {
     esp_err_t err = ESP_FAIL;
 
@@ -90,31 +90,31 @@ fail:
     return err;
 }
 
-esp_err_t bottle_led_resume()
+esp_err_t bottle_led_single_color_resume()
 {
     esp_err_t err;
     uint8_t duty;
 
-    duty = bottle_led_get_duty();
+    duty = bottle_led_single_color_get_duty();
     ESP_LOGD(tag, "restoring duty to %d", duty);
 
-    err = bottle_led_update_duty(duty);
+    err = bottle_led_single_color_update_duty(duty);
     if (err != ESP_OK) {
-        ESP_LOGE(tag, "bottle_led_update_duty(): %s", esp_err_to_name(err));
+        ESP_LOGE(tag, "bottle_led_single_color_update_duty(): %s", esp_err_to_name(err));
         goto fail;
     }
 fail:
     return err;
 }
 
-esp_err_t bottle_led_pause()
+esp_err_t bottle_led_single_color_pause()
 {
     esp_err_t err;
 
     ESP_LOGD(tag, "Set LED duty to 0");
-    err = bottle_led_update_duty(0);
+    err = bottle_led_single_color_update_duty(0);
     if (err != ESP_OK) {
-        ESP_LOGE(tag, "bottle_led_update_duty(): %s", esp_err_to_name(err));
+        ESP_LOGE(tag, "bottle_led_single_color_update_duty(): %s", esp_err_to_name(err));
         goto fail;
     }
 fail:

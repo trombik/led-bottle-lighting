@@ -28,7 +28,7 @@
 
 /*
  * Number of PWM channel to use. must match the length of const variables in
- * bottle_led_config(). having no plan to support multiple LED strips, this
+ * bottle_led_single_color_config(). having no plan to support multiple LED strips, this
  * should always be 1.
  *
  * the official documentation is very misleading here: pwm_init() accepts
@@ -37,7 +37,7 @@
  */
 #define N_PWM_CHANNEL (1)
 
-esp_err_t bottle_led_config(const gpio_num_t gpio_num)
+esp_err_t bottle_led_single_color_config(const gpio_num_t gpio_num)
 {
     esp_err_t err = ESP_FAIL;
     uint32_t duty[N_PWM_CHANNEL] = {
@@ -72,7 +72,7 @@ fail:
     return err;
 }
 
-static esp_err_t bottle_led_update_duty(const uint8_t duty)
+static esp_err_t bottle_led_single_color_update_duty(const uint8_t duty)
 {
     esp_err_t err = ESP_FAIL;
 
@@ -90,7 +90,7 @@ fail:
     return err;
 }
 
-esp_err_t bottle_led_resume()
+esp_err_t bottle_led_single_color_resume()
 {
     esp_err_t err;
 
@@ -103,7 +103,7 @@ fail:
     return err;
 }
 
-esp_err_t bottle_led_pause()
+esp_err_t bottle_led_single_color_pause()
 {
     esp_err_t err;
 

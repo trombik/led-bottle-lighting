@@ -29,8 +29,8 @@ void callback_turn_off(cron_job *job)
     esp_err_t err;
 
     ESP_LOGI(tag, "Time to turn off");
-    if ((err = bottle_led_pause()) != ESP_OK) {
-        ESP_LOGE(tag, "bottle_led_pause(): %s", esp_err_to_name(err));
+    if ((err = bottle_led_off()) != ESP_OK) {
+        ESP_LOGE(tag, "bottle_led_off(): %s", esp_err_to_name(err));
     }
 }
 
@@ -40,8 +40,8 @@ void callback_turn_on(cron_job *job)
     esp_err_t err;
 
     ESP_LOGI(tag, "Time to turn on");
-    if ((err = bottle_led_resume()) != ESP_OK) {
-        ESP_LOGE(tag, "bottle_led_resume(): %s", esp_err_to_name(err));
+    if ((err = bottle_led_on()) != ESP_OK) {
+        ESP_LOGE(tag, "bottle_led_on(): %s", esp_err_to_name(err));
     }
 }
 

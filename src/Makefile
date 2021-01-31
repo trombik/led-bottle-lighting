@@ -4,5 +4,6 @@
 #
 
 PROJECT_NAME := sample_project
+EXTRA_COMPONENT_DIRS := components/esp-idf-lib/components
 
 include $(IDF_PATH)/make/project.mk
