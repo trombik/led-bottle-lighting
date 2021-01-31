@@ -90,7 +90,7 @@ fail:
     return err;
 }
 
-esp_err_t bottle_led_single_color_resume()
+esp_err_t bottle_led_single_color_on()
 {
     esp_err_t err;
 
@@ -103,7 +103,7 @@ fail:
     return err;
 }
 
-esp_err_t bottle_led_single_color_pause()
+esp_err_t bottle_led_single_color_off()
 {
     esp_err_t err;
 

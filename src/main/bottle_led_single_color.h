@@ -28,9 +28,9 @@ esp_err_t bottle_led_single_color_set_duty_and_update(const uint8_t value);
 
 uint8_t bottle_led_single_color_get_duty();
 
-esp_err_t bottle_led_single_color_resume();
+esp_err_t bottle_led_single_color_on();
 
-esp_err_t bottle_led_single_color_pause();
+esp_err_t bottle_led_single_color_off();
 
 void bottle_led_callback_single_color();
 
