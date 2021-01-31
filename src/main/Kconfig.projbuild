@@ -19,11 +19,14 @@ menu "Project configuration"
         help
             Select one of the supported LED:
                 * Single color
-                * Addressable LED (SPI-based, such as APA102 and SK9822)
+                * Addressable LED (SPI-based, such as APA102 and SK9822, ESP32s only)
         config PROJECT_LED_TYPE_SINGLE_COLOR
             bool "Single color"
         config PROJECT_LED_TYPE_ADDRESSABLE_SPI
             bool "Addresssable LED (SPI)"
+
+            # led_strip_spi does not support ESP8266
+            depends on (!IDF_TARGET_ESP8266)
     endchoice
 
     config PROJECT_PWM_FREQ_HZ
