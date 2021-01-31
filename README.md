@@ -11,7 +11,7 @@ A lighting system to illuminate bottles. Supported bottle diameter is 100 mm.
 - some passive components
 - Universal board
 - Touch sensor
-- 12V LED strip
+- 12V LED strip or SPI-based addressable LED strip (`SK9822`, or `APA102`)
 - 18 or 20 AWG power cable
 - 3D printer
 
@@ -47,7 +47,7 @@ See the `esp-idf` project in [`src`](src).
 
 ## License
 
-ISC. See [LISENCE](LISENCE).
+ISC. See [LICENSE](LICENSE).
 
 ## Authors
 
