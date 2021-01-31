@@ -18,6 +18,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <freertos/queue.h>
+#include <driver/gpio.h>
 #include <esp_err.h>
 #include <esp_log.h>
 
@@ -36,6 +37,18 @@
 #include "task_cron.h"
 #endif // CONFIG_PROJECT_CRON_ENABLE
 
+#if defined(CONFIG_PROJECT_LED_TYPE_SINGLE_COLOR)
+#include "bottle_led_single_color.h"
+#endif
+
+#if defined(CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)
+#include "bottle_led_spi.h"
+#endif
+
+#if !defined(CONFIG_PROJECT_LED_TYPE_SINGLE_COLOR) && !defined(CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)
+#error "BUG: CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI nor CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI defined"
+#endif
+
 #define GPIO_TOUCH  CONFIG_PROJECT_GPIO_TOUCH
 #define GPIO_LED  CONFIG_PROJECT_GPIO_LED
 #define ESP_INTR_FLAG_DEFAULT   0
@@ -47,20 +60,6 @@ static void IRAM_ATTR gpio_isr_handler(void* arg)
 {
     uint32_t gpio_num = (uint32_t)arg;
     xQueueSendFromISR(queue_gpio_event, &gpio_num, NULL);
-}
-
-static uint8_t get_next_duty()
-{
-    /* intentionally limit the max brightness to 200 to save the lifetime of
-     * the LED, and save power */
-#define N_DUTY  (6)
-    const uint8_t duties[N_DUTY] = {
-        0, 25, 50, 100, 175, 200
-    };
-    static int index = 0;
-
-    index = index + 1 >= N_DUTY ? 0 : index + 1;
-    return duties[index];
 }
 
 static esp_err_t io_init()
@@ -101,23 +100,14 @@ fail:
 
 void task_handle_gpio_intr(void* arg)
 {
-    uint8_t duty = 0;
-    uint8_t current_duty = 0;
     uint32_t io_num;
-    esp_err_t err;
 
     while (1) {
         if(xQueueReceive(queue_gpio_event, &io_num, portMAX_DELAY)) {
             switch (io_num) {
             case GPIO_TOUCH:
                 ESP_LOGI(tag, "touch sensor became HIGH");
-                duty = get_next_duty();
-                current_duty = bottle_led_get_duty();
-                ESP_LOGI(tag, "duty: %d (cuurent: %d)", duty, current_duty);
-                err = bottle_led_set_duty_and_update(duty);
-                if (err != ESP_OK) {
-                    ESP_LOGE(tag, "bottle_led_set_duty_and_update(): %s", esp_err_to_name(err));
-                }
+                bottle_led_callback();
                 break;
             default:
                 ESP_LOGI(tag, "unknown GPIO intrrupt: io_num = %d", io_num);
@@ -129,7 +119,6 @@ void task_handle_gpio_intr(void* arg)
 void app_main(void)
 {
     esp_err_t err = ESP_FAIL;
-    uint8_t duty;
 
     ESP_LOGI(tag, "io_init()");
     err = io_init();
@@ -149,10 +138,18 @@ void app_main(void)
         goto fail;
     }
 
-    duty = get_next_duty();
-    err = bottle_led_set_duty_and_update(duty);
+    /*
+    err = bottle_led_single_color_set_duty_and_update(duty);
     if (err != ESP_OK) {
-        ESP_LOGE(tag, "bottle_led_set_duty_and_update(): %s", esp_err_to_name(err));
+        ESP_LOGE(tag, "bottle_led_single_color_set_duty_and_update(): %s", esp_err_to_name(err));
+        goto fail;
+    }
+    */
+
+    ESP_LOGI(tag, "starting bottle_led_start");
+    err = bottle_led_start();
+    if (err != ESP_OK) {
+        ESP_LOGE(tag, "bottle_led_start(): %s", esp_err_to_name(err));
         goto fail;
     }
 

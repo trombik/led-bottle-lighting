@@ -14,22 +14,26 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#if !defined(__BOTTLE_LED__H__)
-#define __BOTTLE_LED__H__
+#if !defined(__BOTTLE_LED_SINGLE_COLOR__H__)
+#define __BOTTLE_LED_SINGLE_COLOR__H__
 
-#include <esp_err.h>
 #include <driver/gpio.h>
+#include <esp_err.h>
 
-esp_err_t bottle_led_init(void);
+esp_err_t bottle_led_single_color_init();
 
-esp_err_t bottle_led_config(const gpio_num_t gpio_num);
+esp_err_t bottle_led_single_color_config(const gpio_num_t gpio_num);
 
-esp_err_t bottle_led_start(void);
+esp_err_t bottle_led_single_color_set_duty_and_update(const uint8_t value);
 
-esp_err_t bottle_led_off(void);
+uint8_t bottle_led_single_color_get_duty();
 
-esp_err_t bottle_led_on(void);
+esp_err_t bottle_led_single_color_resume();
 
-void bottle_led_callback(void);
+esp_err_t bottle_led_single_color_pause();
 
-#endif // __BOTTLE_LED__H__
+void bottle_led_callback_single_color();
+
+esp_err_t bottle_led_single_color_start(void);
+
+#endif
