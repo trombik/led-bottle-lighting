@@ -155,7 +155,12 @@ jobs:
           . ${IDF_PATH}/export.sh
           export CCACHE_BASEDIR="${__PROJECT_PATH}"
           export CCACHE_NOHASHDIR=true
-          (cd src && idf.py --ccache build)
+          cd src
+          idf.py --ccache build
+          echo "Build with CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)"
+          rm sdkconfig
+          echo CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI=y >> sdkconfig.default
+          idf.py --ccache build
 
       - name: Setup ccache (make)
 
@@ -184,7 +189,15 @@ jobs:
           IGNORE_FILE="travis-ignore"
           . ${IDF_PATH}/export.sh
 
-          (cd src && make defconfig && make)
+          cd src
+          make defconfig
+          make
+          echo "Build with CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)"
+          rm sdkconfig
+          echo CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI=y > sdkconfig.default
+          make clean
+          make defconfig
+          make
   build_esp8266:
     runs-on: ubuntu-latest
     strategy:
@@ -314,6 +327,8 @@ jobs:
           echo ${PATH}
           ${__PROJECT_GCC_FILE} --version
 
+          # XXX these does not support ESP8266
+          export EXCLUDE_COMPONENTS="max7219 mcp23x17 led_strip led_strip_spi"
           (cd src && make defconfig && make)
 
   # XXX esp32s2 support was introduced in v4.2. older esp-idf does not install
@@ -458,4 +473,10 @@ jobs:
           export CCACHE_BASEDIR="${__PROJECT_PATH}"
           export CCACHE_NOHASHDIR=true
 
-          (cd src && idf.py --ccache build)
+          cd src
+          idf.py set-target esp32s2
+          idf.py --ccache build
+          echo "Build with CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)"
+          rm sdkconfig
+          echo CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI=y > sdkconfig.default
+          idf.py --ccache build
