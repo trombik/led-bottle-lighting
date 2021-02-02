@@ -24,7 +24,7 @@ esp_err_t bottle_led_spi_init(void);
 
 esp_err_t bottle_led_spi_start(void);
 
-esp_err_t bottle_led_spi_config(const gpio_num_t gpio_num);
+esp_err_t bottle_led_spi_config(void);
 
 void bottle_led_callback_spi(void);
 

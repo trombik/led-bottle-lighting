@@ -22,7 +22,7 @@
 
 esp_err_t bottle_led_init(void);
 
-esp_err_t bottle_led_config(const gpio_num_t gpio_num);
+esp_err_t bottle_led_config(void);
 
 esp_err_t bottle_led_start(void);
 

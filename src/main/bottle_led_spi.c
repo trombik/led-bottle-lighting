@@ -80,7 +80,7 @@ esp_err_t bottle_led_spi_init(void)
     return ESP_OK;
 }
 
-esp_err_t bottle_led_spi_config(const gpio_num_t gpio_num)
+esp_err_t bottle_led_spi_config(void)
 {
     esp_err_t err;
 
@@ -90,7 +90,6 @@ esp_err_t bottle_led_spi_config(const gpio_num_t gpio_num)
     strip.device_handle = device_handle;
     strip.max_transfer_sz = LED_STRIP_SPI_BUFFER_SIZE(N_PIXEL);
     strip.clock_speed_hz = 1000000 * 10;
-    strip.mosi_io_num = gpio_num;
     strip.sclk_io_num = CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI_SCLK_PIN;
     strip.mosi_io_num = CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI_MOSI_PIN;
 #endif // HELPER_TARGET_IS_ESP32

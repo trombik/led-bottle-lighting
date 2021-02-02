@@ -38,12 +38,12 @@ esp_err_t bottle_led_init(void)
 #endif
 }
 
-esp_err_t bottle_led_config(const gpio_num_t gpio_num)
+esp_err_t bottle_led_config(void)
 {
 #if defined(CONFIG_PROJECT_LED_TYPE_SINGLE_COLOR)
-    return bottle_led_single_color_config(gpio_num);
+    return bottle_led_single_color_config(CONFIG_PROJECT_SINGLE_COLOR_GPIO_LED);
 #elif defined(CONFIG_PROJECT_LED_TYPE_ADDRESSABLE_SPI)
-    return bottle_led_spi_config(gpio_num);
+    return bottle_led_spi_config();
 #else
 #error "BUG: no fucntion defined in bottle_led_config()"
 #endif

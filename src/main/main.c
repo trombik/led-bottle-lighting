@@ -139,7 +139,7 @@ void app_main(void)
         goto fail;
     }
     ESP_LOGI(tag, "bottle_led_config()");
-    err = bottle_led_config(GPIO_LED);
+    err = bottle_led_config();
     if (err != ESP_OK) {
         goto fail;
     }
