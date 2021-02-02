@@ -1,12 +1,5 @@
 menu "Project configuration"
 
-    config PROJECT_GPIO_LED
-        int "GPIO number to control the LED"
-        default 4 if PROJECT_LED_TYPE_SINGLE_COLOR
-        help
-            GPIO number of output pin to control the LED. Choose 13 when
-            hardware SPI is preferred for addressable LED.
-
     config PROJECT_GPIO_TOUCH
         int "GPIO number of touch sensor"
         default 5
@@ -19,15 +12,19 @@ menu "Project configuration"
         help
             Select one of the supported LED:
                 * Single color
-                * Addressable LED (SPI-based, such as APA102 and SK9822, ESP32s only)
+                * Addressable LED (SPI-based, such as APA102 and SK9822)
         config PROJECT_LED_TYPE_SINGLE_COLOR
             bool "Single color"
         config PROJECT_LED_TYPE_ADDRESSABLE_SPI
             bool "Addresssable LED (SPI)"
-
-            # led_strip_spi does not support ESP8266
-            depends on (!IDF_TARGET_ESP8266)
     endchoice
+
+    config PROJECT_SINGLE_COLOR_GPIO_LED
+        int "GPIO number to control the LED"
+        depends on PROJECT_LED_TYPE_SINGLE_COLOR
+        default 4
+        help
+            GPIO number of output pin to control single color LED.
 
     config PROJECT_PWM_FREQ_HZ
         int "Frequency of PWM in Hz"
@@ -46,6 +43,26 @@ menu "Project configuration"
         depends on PROJECT_LED_TYPE_ADDRESSABLE_SPI
         help
             The number of LED pixels in LED strip.
+
+    config PROJECT_LED_TYPE_ADDRESSABLE_SPI_SCLK_PIN
+        int "GPIO number of SCLK pin"
+        depends on PROJECT_LED_TYPE_ADDRESSABLE_SPI
+
+        # SCLK pin is fixed on ESP8266
+        depends on (!IDF_TARGET_ESP8266)
+        default 14
+        help
+            GPIO number of SCLK pin.
+
+    config PROJECT_LED_TYPE_ADDRESSABLE_SPI_MOSI_PIN
+        int "GPIO number of MOSI pin"
+        depends on PROJECT_LED_TYPE_ADDRESSABLE_SPI
+
+        # MOSI pin is fixed on ESP8266
+        depends on (!IDF_TARGET_ESP8266)
+        default 13
+        help
+            GPIO number of MOSI pin.
 
     config PROJECT_CONNECT_WIFI
         bool "Enable WiFi support"

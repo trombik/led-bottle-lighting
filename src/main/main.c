@@ -50,7 +50,13 @@
 #endif
 
 #define GPIO_TOUCH  CONFIG_PROJECT_GPIO_TOUCH
-#define GPIO_LED  CONFIG_PROJECT_GPIO_LED
+
+#if CONFIG_PROJECT_LED_TYPE_SINGLE_COLOR
+#define GPIO_LED  CONFIG_PROJECT_SINGLE_COLOR_GPIO_LED
+#else
+#define GPIO_LED  (0) // dummy, ignored
+#endif
+
 #define ESP_INTR_FLAG_DEFAULT   0
 
 static xQueueHandle queue_gpio_event = NULL;
