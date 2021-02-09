@@ -36,20 +36,20 @@ spi_device_handle_t device_handle;
 
 static esp_err_t rainbow() {
     static uint8_t pos = 0;
-    uint32_t c;
-    esp_err_t err;
+    const uint8_t offset = 0xff / N_PIXEL >= 1 ? 0xff / N_PIXEL : 1;
+
+    esp_err_t err = ESP_FAIL;
     rgb_t color;
 
-    c = led_effect_color_wheel(pos);
-    color.r = (c >> 16) & 0xff;
-    color.g = (c >> 8)  & 0xff;
-    color.b =  c        & 0xff;
-    ESP_LOGD(tag, "r: 0x%02x g: 0x%02x b: 0x%02x", color.r, color.g, color.b);
-
-    if ((err = led_strip_spi_fill(&strip, 0, strip.length, color)) != ESP_OK) {
-        ESP_LOGE(tag, "led_strip_spi_fill(): %s", esp_err_to_name(err));
-        goto fail;
+    for (int i = 0; i < N_PIXEL; i++) {
+        color = led_effect_color_wheel_rgb(pos + offset * i);
+        err = led_strip_spi_set_pixel(&strip, i, color);
+        if (err != ESP_OK) {
+            ESP_LOGE(tag, "led_strip_spi_set_pixel(): %s", esp_err_to_name(err));
+            goto fail;
+        }
     }
+    ESP_LOGI(tag, "pos: %d", pos);
     pos += 1;
 fail:
     return err;
